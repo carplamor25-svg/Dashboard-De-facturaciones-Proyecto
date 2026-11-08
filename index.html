@@ -806,6 +806,128 @@
         </div>
 
       </div>
+
+      <!-- ===================================================================== -->
+      <!-- CONTACTO POR CORREO DIRECTO Y CHAT ASISTENTE DE SELECCIÓN DE PLAN      -->
+      <!-- ===================================================================== -->
+      <div class="mt-12 pt-12 border-t border-slate-200 dark:border-slate-800 grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
+        
+        <!-- ASISTENTE INTERACTIVO DE SELECCIÓN DE PLAN (CHAT DE SELECCIÓN) -->
+        <div class="rounded-3xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 p-6 lg:p-7 flex flex-col justify-between shadow-sm">
+          <div>
+            <div class="flex items-center space-x-3 pb-4 border-b border-slate-200 dark:border-slate-800">
+              <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white flex items-center justify-center font-bold shadow-md shadow-blue-500/20">
+                <i data-lucide="bot" class="w-5 h-5"></i>
+              </div>
+              <div>
+                <h4 class="font-bold text-slate-900 dark:text-white text-base">Asistente de Selección de Plan</h4>
+                <p class="text-xs text-slate-500">¿Qué plan se adapta mejor a tu volumen de facturas?</p>
+              </div>
+            </div>
+
+            <!-- Conversación del Asistente -->
+            <div class="mt-4 space-y-3 text-xs" id="planChatContainer">
+              <div class="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 p-3.5 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm max-w-[92%] rounded-tl-none">
+                👋 <strong>¡Hola!</strong> Te ayudo a calcular el plan idóneo para tu empresa o actividad como autónomo.<br><br>
+                Selecciona tu volumen mensual de facturación para recomendarte la mejor opción:
+              </div>
+
+              <div id="planBotResponse" class="hidden bg-blue-50 dark:bg-blue-950/50 text-blue-900 dark:text-blue-200 p-3.5 rounded-2xl border border-blue-200/80 dark:border-blue-900/60 max-w-[92%] rounded-tl-none">
+                <!-- Se rellena dinámicamente al pulsar un plan -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Botones interactivos de selección rápida de plan -->
+          <div class="mt-5 pt-4 border-t border-slate-200 dark:border-slate-800">
+            <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-2">Selecciona tu situación:</span>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <button onclick="selectPlanFromChat('gratuito')" class="p-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-blue-500 text-left text-xs transition-all group">
+                <span class="font-bold block text-slate-900 dark:text-white group-hover:text-blue-600">Menos de 10 facturas</span>
+                <span class="text-[11px] text-slate-500">Plan Gratuito · 0 €</span>
+              </button>
+              <button onclick="selectPlanFromChat('basico')" class="p-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-blue-500 text-left text-xs transition-all group">
+                <span class="font-bold block text-slate-900 dark:text-white group-hover:text-blue-600">Hasta 20 facturas/mes</span>
+                <span class="text-[11px] text-slate-500">Plan Básico · 50 €/mes</span>
+              </button>
+              <button onclick="selectPlanFromChat('profesional')" class="p-2.5 rounded-xl bg-white dark:bg-slate-900 border-2 border-blue-500/80 text-left text-xs transition-all shadow-sm group">
+                <span class="font-bold block text-blue-600 dark:text-blue-400">Hasta 60 facturas/mes</span>
+                <span class="text-[11px] text-slate-500">Plan Profesional · 80 €/mes</span>
+              </button>
+              <button onclick="selectPlanFromChat('empresa')" class="p-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-indigo-500 text-left text-xs transition-all group">
+                <span class="font-bold block text-slate-900 dark:text-white group-hover:text-indigo-600">Servidor en mi oficina</span>
+                <span class="text-[11px] text-slate-500">Instalación Única · 200 €</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- FORMULARIO DIRECTO DE CONTACTO POR CORREO ELECTRÓNICO (EMAIL) -->
+        <div class="rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-6 lg:p-7 shadow-sm flex flex-col justify-between">
+          <div>
+            <div class="flex items-center space-x-3 pb-4 border-b border-slate-200 dark:border-slate-800">
+              <div class="w-10 h-10 rounded-2xl bg-blue-100 dark:bg-blue-900/40 text-blue-600 flex items-center justify-center">
+                <i data-lucide="mail" class="w-5 h-5"></i>
+              </div>
+              <div>
+                <h4 class="font-bold text-slate-900 dark:text-white text-base">Enviar Consulta por Correo</h4>
+                <p class="text-xs text-slate-500">Recibe presupuesto personalizado o respuesta a tus dudas</p>
+              </div>
+            </div>
+
+            <!-- Formulario de Correo -->
+            <form id="emailContactForm" onsubmit="handleEmailContactSubmit(event)" class="mt-4 space-y-3.5 text-xs">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Nombre Completo *</label>
+                  <input type="text" id="contactName" required placeholder="Tu nombre o empresa" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                  <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Correo Electrónico *</label>
+                  <input type="email" id="contactEmail" required placeholder="tu-email@empresa.com" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Plan de Interés</label>
+                  <select id="contactPlan" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium">
+                    <option value="profesional">Plan Profesional (80 €/mes) - Recomendado</option>
+                    <option value="basico">Plan Básico (50 €/mes)</option>
+                    <option value="gratuito">Plan Gratuito (0 € Demo)</option>
+                    <option value="empresa">Instalación Única On-Premise (200 €)</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Teléfono / WhatsApp (Opcional)</label>
+                  <input type="tel" id="contactPhone" placeholder="+34 600 000 000" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+              </div>
+
+              <div>
+                <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Mensaje o Detalles de tu Empresa *</label>
+                <textarea id="contactMessage" rows="3" required placeholder="Describe brevemente el tipo de facturas que manejas o las dudas que deseas resolver..." class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+              </div>
+
+              <!-- Notificación de Éxito al Enviar -->
+              <div id="contactSuccessMsg" class="hidden p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 text-xs flex items-center space-x-2">
+                <i data-lucide="check-circle" class="w-4 h-4 text-emerald-600 flex-shrink-0"></i>
+                <span>¡Mensaje preparado con éxito! Carlos Plata responderá a tu correo en menos de 24 horas.</span>
+              </div>
+
+              <button type="submit" class="w-full py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-md shadow-blue-500/20 transition-all flex items-center justify-center space-x-2">
+                <i data-lucide="send" class="w-4 h-4"></i>
+                <span>Enviar Consulta por Correo</span>
+              </button>
+            </form>
+          </div>
+          
+          <p class="text-[11px] text-slate-400 text-center mt-3">
+            🔒 Tratamiento confidencial conforme al RGPD · Destinatario oficial: <span class="font-mono text-slate-600 dark:text-slate-300">carplamor25@iesfidiana.es</span>
+          </p>
+        </div>
+
+      </div>
     </div>
   </section>
 
@@ -1345,6 +1467,51 @@
       }, 400);
     }
 
+    // Función interactiva del chat de selección de planes
+    function selectPlanFromChat(planId) {
+      const respBox = document.getElementById('planBotResponse');
+      const planSelect = document.getElementById('contactPlan');
+      respBox.classList.remove('hidden');
+
+      if (planId === 'gratuito') {
+        respBox.innerHTML = `✅ <strong>Plan Gratuito (0 €)</strong><br>• Perfecto para probar el sistema.<br>• Hasta 5 facturas con borrado automático.<br>• Se ha preseleccionado en el formulario de la derecha.`;
+        if (planSelect) planSelect.value = 'gratuito';
+      } else if (planId === 'basico') {
+        respBox.innerHTML = `✅ <strong>Plan Básico (50 €/mes)</strong><br>• Hasta 20 facturas al mes con entrega en menos de 24 horas.<br>• Modelo 303 de IVA y 111 de IRPF incluidos.<br>• Se ha preseleccionado en el formulario de la derecha.`;
+        if (planSelect) planSelect.value = 'basico';
+      } else if (planId === 'profesional') {
+        respBox.innerHTML = `⭐ <strong>Plan Profesional (80 €/mes) - Recomendado</strong><br>• Hasta 60 facturas/mes con entrega prioritaria en &lt; 12 horas.<br>• Asistente de Telegram 24/7 y revisión exhaustiva de nóminas.<br>• Se ha preseleccionado en el formulario de la derecha.`;
+        if (planSelect) planSelect.value = 'profesional';
+      } else if (planId === 'empresa') {
+        respBox.innerHTML = `🏢 <strong>Instalación Única On-Premise (200 €)</strong><br>• Instalación en tu propio servidor doméstico o VPS con IA local.<br>• Incluye 1h de formación personalizada y 1 mes de soporte dedicado.<br>• Se ha preseleccionado en el formulario de la derecha.`;
+        if (planSelect) planSelect.value = 'empresa';
+      }
+
+      lucide.createIcons();
+    }
+
+    // Manejo del formulario de contacto por correo
+    function handleEmailContactSubmit(e) {
+      e.preventDefault();
+      const name = document.getElementById('contactName').value;
+      const email = document.getElementById('contactEmail').value;
+      const plan = document.getElementById('contactPlan').value;
+      const phone = document.getElementById('contactPhone').value;
+      const msg = document.getElementById('contactMessage').value;
+
+      const successNotice = document.getElementById('contactSuccessMsg');
+      if (successNotice) {
+        successNotice.classList.remove('hidden');
+      }
+
+      // Preparar enlace mailto para cliente de correo nativo
+      const subject = encodeURIComponent(`Consulta Dashboard Facturas - Plan: ${plan.toUpperCase()} - ${name}`);
+      const body = encodeURIComponent(`Hola Carlos,\n\nMi nombre es ${name}.\nCorreo de contacto: ${email}\nTeléfono: ${phone || 'No indicado'}\nPlan de interés: ${plan}\n\nMensaje:\n${msg}\n\nQuedo a la espera de tu respuesta.`);
+      
+      // Abre cliente de correo
+      window.location.href = `mailto:carplamor25@iesfidiana.es?cc=cpm4tic@gmail.com&subject=${subject}&body=${body}`;
+    }
+
     // Toggle Modo Oscuro
     document.getElementById('themeToggle').addEventListener('click', () => {
       document.documentElement.classList.toggle('dark');
@@ -1364,3 +1531,4 @@
   </script>
 </body>
 </html>
+

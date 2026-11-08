@@ -63,3 +63,4 @@ node automation/telegram_bot/telegram_bot.js
 - **Autenticación por Chat ID:** El bot puede configurarse para responder exclusivamente al `telegram_chat_id` registrado en la tabla `users` de la base de datos, impidiendo que terceros no autorizados consulten datos contables.
 - **Sin Almacenamiento de Ficheros:** El bot consulta las métricas estructuradas de PostgreSQL mediante consultas parametrizadas `$1, $2` inmunes a SQL Injection.
 - **Simulador Web:** En la portada `index.html` del proyecto se incluye un simulador interactivo idéntico para que el tribunal de 2º DAW pueda probar todos los comandos sin necesidad de configurar un bot en vivo.
+

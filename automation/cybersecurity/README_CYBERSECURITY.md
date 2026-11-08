@@ -30,3 +30,4 @@
 - **Cloudflare WAF:** Bloqueo de ataques automatizados, inyecciones SQL y Cross-Site Scripting (XSS).
 - **Cloudflare Turnstile:** Captcha inteligente sin fricción validado en el servidor para evitar registros masivos de bots.
 - **TLS 1.3 Full Strict:** Cifrado extremo a extremo sin certificados obsoletos.
+

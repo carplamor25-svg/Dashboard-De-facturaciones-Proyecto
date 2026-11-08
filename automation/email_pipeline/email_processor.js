@@ -125,3 +125,4 @@ export async function processIncomingEmail(emailData) {
   console.log(`[EMAIL AUTOMATION] ${results.length} facturas extraídas, registradas y destruidas.`);
   return { status: 'SUCCESS', extractedCount: results.length, data: results };
 }
+

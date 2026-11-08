@@ -22,3 +22,4 @@ El servidor procesa el correo de forma totalmente desatendida:
 Para usuarios que prefieran orquestación visual en lugar de scripts Node.js:
 - **Flujo n8n:** El archivo `n8n_workflow_invoices.json` contiene el workflow completo listo para importar en cualquier instancia de n8n.
 - **EmailJS:** Para el frontend estático alojado en GitHub Pages, el envío de solicitudes de contacto y alertas se realiza a través de la API cliente segura de EmailJS sin necesidad de exponer servidores SMTP.
+
