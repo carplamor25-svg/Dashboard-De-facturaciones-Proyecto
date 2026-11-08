@@ -1,0 +1,20 @@
+vale mira ahora vamos ha hacer una version completamente mejorada sin tocar nada de las instrucciones que se encargan de hacer las facturas ni nada del entorno con el que el que se trabaja para enviar las facturas, lo que necesitamos hacer es que a este proyecto le falta un base de datos pero no para guardar las facturas que me pesan en formato pdf img o no eso se guarda en una carpeta temporal si lo que se va a guardar es que la aplicacion porque ahora mismo tenemos un servicio web y hay que desarrollarlo como aplicacion web, pues lo que quiere que guardar en especifico la aplicacion web es que tiene que contar con loguin de usuario, de empresa, de vista por si quieres por ejemplo eres un empleado de la empresa y solo pues ver la factura y consultar algunos datos 
+tenga el loguin de la propia empresa para que pueda cambiar datos de su factura y el prgrama recibirlos y de todo es decir que tenga guardado de los usuarios y sea el loguin por contraseña que se haseh y por correo
+Pues toda esa parte se va a guardar y que tenga sus respectivos aspectos de ciberseguridad como a su vez tienes tmb que dejar un index.html que hay como primera portada de la app porque ese html es el que va a aparecer como portada explicando todo y con sus apartados enlaces etc ect y toda la informacion que tiene solo que en esta parte se la va a proporcionar y añadir metodos de contacto como telegram, whasap, y numero de telefono que tu los pones los apartados con mi correo que ya hay u pones mi numero de telefono que es +34 633 97 15 27
+y mi enlace a linkedin como el de telegram por si me quieren escribir por ahi 
+
+luego ese index.html que lo tenemos conectado en git bug como una page que es lo que se presenta y ven todos los usuarios tiene que tener una parte de acceder a la app con su loguin y de todo pero claro cualquiera puede acceder a esta parte pero solo cuando haya hecho el pago y haya proporcionado pues el dinero ahi es cuando si se admite la entrada con su correo y usario y los tipos de usuarios que hay y ya que accedan conforme al plan que hayan pagado 
+Mi usuario de linkedin es www.linkedin.com/in/carlos-plata-morán-86a978445
+
+y en el apartado de telegran pon mi codigo qr 
+Toda esta primera parte tiene que tener su controld e seguridad y acceso garantizado ademas luego el trabajo terminado me lo creara en una carpeta que crees que contenga todo con una documentacion previa a lo que hemos hecho y añadido nuevo en la siguiente ruta 
+E:\2DAW\Proyecto Edu\Presentacion_Documentacion_Y enlaces\Trabajo terminado
+ahi tienes que ir subiendo y creando todo 
+Luego todo tienes que subirlo al siguiente git hub qu ete he pasado y tiene que tener la page que si tu no puedes hacerlo explicame como hacerlo y la ponemos que es la portada de todo 
+el resto lo añades tu el git ignore y lo subes tu 
+aqui trienes el enlace https://github.com/carplamor25-svg/Dashboard-De-facturaciones-Proyecto.git
+y los codigos para crearlos en la captrua de pantalla el usuario y el correo mios de mi ordenador de git hub ya estan confugurados asi que de ahi no tienes que tocar nada 
+
+bueno y por ultimo tenemos que añadir toda la parte automatizada que se va a dividir en 3 que si eso no puedes hacertlo tu ya me explicas como se haria pero que aprezca un prototipo en lo que creees o una interfaz de como se veria 
+Porque tenemos qu ehacer un bot de telegram con todas las instrucciones completas para que haga de asistente a tus facturas y luego todo eso este guardado en la base de datos que eso si necesitamos una aplicacion externa donde guardar o lo que sea dimelo 
+tenemos que tener tmb todo el proceso de los correos automatizado es decir que reciba si es mediante el apartado de correo los pdf imagenes o el formato que nos pasen de manera automatica y con la aplicacion que viene explicada en la documentacion del proyecto de los correos haga el programa la factura y se la pase automaticamente por esa aplciacion de correos y toda la parte de ciberseguridad que si necesitas que este contralada por lo que sea o recursos que necesites me lo dices 

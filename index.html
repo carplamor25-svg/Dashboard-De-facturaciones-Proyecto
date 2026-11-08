@@ -1,0 +1,1366 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard de Facturaciones — Tus facturas, organizadas solas | Carlos Plata Morán</title>
+  <meta name="description" content="Aplicación web y SaaS inteligente para digitalizar, organizar y auditar facturas y nóminas con IA local privada, borrado automático y cumplimiento fiscal español.">
+  <meta name="author" content="Carlos Plata Morán">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Chart.js para métricas dinámicas -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#eff6ff',
+              100: '#dbeafe',
+              500: '#3b82f6',
+              600: '#2563eb',
+              700: '#1d4ed8',
+              800: '#1e40af',
+              900: '#1e3a8a',
+            },
+            income: {
+              light: '#ecfdf5',
+              DEFAULT: '#10b981',
+              dark: '#047857',
+            },
+            expense: {
+              light: '#fef2f2',
+              DEFAULT: '#ef4444',
+              dark: '#b91c1c',
+            },
+            total: {
+              light: '#eff6ff',
+              DEFAULT: '#3b82f6',
+              dark: '#1d4ed8',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap');
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    .font-mono-numbers { font-family: 'JetBrains Mono', monospace; font-variant-numeric: tabular-nums; }
+    .glass-effect {
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+    .dark .glass-effect {
+      background: rgba(15, 23, 42, 0.85);
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 antialiased transition-colors duration-200">
+
+  <!-- ========================================================================= -->
+  <!-- NAVBAR PRINCIPAL                                                         -->
+  <!-- ========================================================================= -->
+  <header class="sticky top-0 z-50 glass-effect border-b border-slate-200/80 dark:border-slate-800/80 transition-all">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+      <!-- Logo y Título -->
+      <a href="#" class="flex items-center space-x-3 group">
+        <div class="w-11 h-11 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-blue-400 flex items-center justify-center text-white shadow-lg shadow-blue-500/20 group-hover:scale-105 transition-transform">
+          <i data-lucide="receipt" class="w-6 h-6"></i>
+        </div>
+        <div>
+          <div class="flex items-center space-x-2">
+            <span class="font-extrabold text-xl tracking-tight bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">Dashboard Facturas</span>
+            <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/60 dark:text-blue-300">v2.0 PRO</span>
+          </div>
+          <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">Tus facturas, organizadas solas · Carlos Plata</p>
+        </div>
+      </a>
+
+      <!-- Navegación Escritorio -->
+      <nav class="hidden md:flex items-center space-x-6 text-sm font-medium">
+        <a href="#roles" class="text-slate-600 dark:text-slate-300 hover:text-blue-600 transition-colors">Roles y Vistas</a>
+        <a href="#seguridad" class="text-slate-600 dark:text-slate-300 hover:text-blue-600 transition-colors">Ciberseguridad</a>
+        <a href="#automatizacion" class="text-slate-600 dark:text-slate-300 hover:text-blue-600 transition-colors">Automatización</a>
+        <a href="#planes" class="text-slate-600 dark:text-slate-300 hover:text-blue-600 transition-colors">Planes y Precios</a>
+        <a href="#contacto" class="text-slate-600 dark:text-slate-300 hover:text-blue-600 transition-colors">Contacto</a>
+      </nav>
+
+      <!-- Botones de Acción -->
+      <div class="flex items-center space-x-3">
+        <!-- Toggle Modo Oscuro -->
+        <button id="themeToggle" class="p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-900 transition-colors" title="Cambiar tema">
+          <i data-lucide="moon" class="w-4 h-4 hidden dark:block"></i>
+          <i data-lucide="sun" class="w-4 h-4 block dark:hidden"></i>
+        </button>
+
+        <!-- Botón Acceso Rápido a la App -->
+        <button onclick="openLoginModal()" class="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm shadow-md shadow-blue-500/25 transition-all flex items-center space-x-2">
+          <i data-lucide="log-in" class="w-4 h-4"></i>
+          <span>Entrar a la App</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ========================================================================= -->
+  <!-- HERO SECTION                                                             -->
+  <!-- ========================================================================= -->
+  <section class="relative overflow-hidden pt-12 pb-20 lg:pt-20 lg:pb-28">
+    <div class="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(59,130,246,0.15),rgba(255,255,255,0))] dark:bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(59,130,246,0.25),rgba(0,0,0,0))]"></div>
+    
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <!-- Badges de Cumplimiento -->
+      <div class="inline-flex items-center space-x-2 px-3 py-1.5 rounded-full bg-blue-50 border border-blue-200 dark:bg-blue-950/60 dark:border-blue-800/80 text-blue-700 dark:text-blue-300 text-xs font-semibold mb-6">
+        <span class="flex h-2 w-2 rounded-full bg-blue-600 animate-pulse"></span>
+        <span>Proyecto Final 2º DAW · Con Base de Datos Relacional y Roles Segregados</span>
+      </div>
+
+      <!-- Título Impactante -->
+      <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-slate-900 dark:text-white max-w-4xl mx-auto leading-tight">
+        Tus facturas y nóminas, <br>
+        <span class="bg-gradient-to-r from-blue-600 via-indigo-600 to-emerald-500 bg-clip-text text-transparent">organizadas solas</span> con IA y Privacidad Total
+      </h1>
+
+      <p class="mt-6 text-lg sm:text-xl text-slate-600 dark:text-slate-300 max-w-3xl mx-auto leading-relaxed">
+        Sube tus documentos en PDF, imagen o XML. Nuestra Inteligencia Artificial extrae cada campo, audita impuestos españoles (Modelos 303 y 111), revisa deducciones de nóminas y genera tu dashboard interactivo. 
+        <strong class="text-slate-900 dark:text-white font-semibold">Los archivos originales se borran automáticamente tras la entrega.</strong>
+      </p>
+
+      <!-- Botones de Acción Primaria -->
+      <div class="mt-8 flex flex-wrap justify-center gap-4">
+        <button onclick="openLoginModal()" class="px-7 py-3.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-base shadow-lg shadow-blue-500/30 hover:shadow-xl transition-all flex items-center space-x-2.5">
+          <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
+          <span>Probar la Aplicación Web (3 Vistas)</span>
+        </button>
+        <a href="#telegram-simulator" class="px-7 py-3.5 rounded-xl bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-800 dark:text-white font-semibold text-base border border-slate-200 dark:border-slate-800 shadow-sm transition-all flex items-center space-x-2">
+          <i data-lucide="bot" class="w-5 h-5 text-blue-500"></i>
+          <span>Simulador de Bot Telegram</span>
+        </a>
+      </div>
+
+      <!-- Métricas Clave de Confianza -->
+      <div class="mt-14 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
+        <div class="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/70 dark:border-slate-800 shadow-sm">
+          <div class="text-2xl sm:text-3xl font-extrabold text-blue-600 font-mono-numbers">100%</div>
+          <div class="text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium">Privacidad (Sin Persistencia)</div>
+        </div>
+        <div class="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/70 dark:border-slate-800 shadow-sm">
+          <div class="text-2xl sm:text-3xl font-extrabold text-emerald-500 font-mono-numbers">&lt; 3 seg</div>
+          <div class="text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium">Extracción OCR con IA</div>
+        </div>
+        <div class="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/70 dark:border-slate-800 shadow-sm">
+          <div class="text-2xl sm:text-3xl font-extrabold text-indigo-600 font-mono-numbers">Argon2id</div>
+          <div class="text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium">Ciberseguridad y 2FA</div>
+        </div>
+        <div class="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/70 dark:border-slate-800 shadow-sm">
+          <div class="text-2xl sm:text-3xl font-extrabold text-rose-500 font-mono-numbers">VERI*FACTU</div>
+          <div class="text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium">Listo para Ley Crea y Crece</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================================= -->
+  <!-- SECCIÓN: ARQUITECTURA DE ROLES Y VISTAS DE USUARIO                       -->
+  <!-- ========================================================================= -->
+  <section id="roles" class="py-16 bg-white dark:bg-slate-900 border-y border-slate-200 dark:border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center max-w-3xl mx-auto">
+        <h2 class="text-xs font-bold uppercase tracking-wider text-blue-600">Control de Acceso Basado en Roles (RBAC)</h2>
+        <h3 class="mt-2 text-3xl font-extrabold text-slate-900 dark:text-white">Una aplicación web adaptada a cada necesidad</h3>
+        <p class="mt-3 text-slate-600 dark:text-slate-300">
+          La base de datos almacena usuarios, empresas, roles y credenciales hasheadas de forma segura. Los archivos PDF se manejan en memoria efímera sin persistencia.
+        </p>
+      </div>
+
+      <div class="mt-12 grid grid-cols-1 md:grid-cols-3 gap-8">
+        <!-- ROL 1: EMPLEADO / VISTA CONSULTA -->
+        <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/60 p-7 flex flex-col justify-between hover:shadow-lg transition-all">
+          <div>
+            <div class="w-12 h-12 rounded-xl bg-amber-100 dark:bg-amber-900/40 text-amber-600 flex items-center justify-center mb-5">
+              <i data-lucide="eye" class="w-6 h-6"></i>
+            </div>
+            <div class="flex items-center space-x-2">
+              <h4 class="text-xl font-bold text-slate-900 dark:text-white">Vista Empleado</h4>
+              <span class="text-[10px] uppercase font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 dark:bg-amber-900/60 dark:text-amber-200">Solo Consulta</span>
+            </div>
+            <p class="text-sm text-slate-600 dark:text-slate-400 mt-3 leading-relaxed">
+              Diseñado para empleados de la empresa que necesitan consultar facturas, buscar gastos o verificar un abono sin riesgo de alterar la contabilidad.
+            </p>
+            <ul class="mt-5 space-y-2 text-sm text-slate-600 dark:text-slate-400">
+              <li class="flex items-center"><i data-lucide="check" class="w-4 h-4 text-emerald-500 mr-2 flex-shrink-0"></i> Consulta de facturas emitidas y recibidas</li>
+              <li class="flex items-center"><i data-lucide="check" class="w-4 h-4 text-emerald-500 mr-2 flex-shrink-0"></i> Filtro por fechas, clientes y conceptos</li>
+              <li class="flex items-center"><i data-lucide="x" class="w-4 h-4 text-rose-500 mr-2 flex-shrink-0"></i> <strong class="text-rose-600 dark:text-rose-400">Sin permisos de edición</strong> ni borrado</li>
+              <li class="flex items-center"><i data-lucide="x" class="w-4 h-4 text-rose-500 mr-2 flex-shrink-0"></i> Sin acceso a configuración ni planes</li>
+            </ul>
+          </div>
+          <button onclick="loginAs('employee')" class="mt-7 w-full py-2.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-700 dark:text-amber-300 font-semibold text-sm transition-colors border border-amber-500/30 flex items-center justify-center space-x-2">
+            <span>Probar Vista Empleado</span>
+            <i data-lucide="arrow-right" class="w-4 h-4"></i>
+          </button>
+        </div>
+
+        <!-- ROL 2: EMPRESA / GESTOR -->
+        <div class="rounded-2xl border-2 border-blue-500 bg-white dark:bg-slate-950 p-7 flex flex-col justify-between shadow-xl shadow-blue-500/10 relative">
+          <div class="absolute -top-3.5 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-blue-600 text-white text-[11px] font-bold uppercase tracking-wider">
+            Modo Principal de Trabajo
+          </div>
+          <div>
+            <div class="w-12 h-12 rounded-xl bg-blue-100 dark:bg-blue-900/40 text-blue-600 flex items-center justify-center mb-5">
+              <i data-lucide="building-2" class="w-6 h-6"></i>
+            </div>
+            <div class="flex items-center space-x-2">
+              <h4 class="text-xl font-bold text-slate-900 dark:text-white">Vista Empresa</h4>
+              <span class="text-[10px] uppercase font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900/60 dark:text-blue-200">Gestor Completo</span>
+            </div>
+            <p class="text-sm text-slate-600 dark:text-slate-400 mt-3 leading-relaxed">
+              Login de la propia empresa. Permite subir nuevos lotes, corregir o editar datos de facturas con recálculo automático de impuestos y descargar informes.
+            </p>
+            <ul class="mt-5 space-y-2 text-sm text-slate-600 dark:text-slate-400">
+              <li class="flex items-center"><i data-lucide="check" class="w-4 h-4 text-emerald-500 mr-2 flex-shrink-0"></i> <strong class="text-slate-900 dark:text-white">Editar datos de facturas</strong> (base, IVA, concepto)</li>
+              <li class="flex items-center"><i data-lucide="check" class="w-4 h-4 text-emerald-500 mr-2 flex-shrink-0"></i> Subir facturas y nóminas arrastrando</li>
+              <li class="flex items-center"><i data-lucide="check" class="w-4 h-4 text-emerald-500 mr-2 flex-shrink-0"></i> Previsión Modelos 303 (IVA) y 111 (IRPF)</li>
+              <li class="flex items-center"><i data-lucide="check" class="w-4 h-4 text-emerald-500 mr-2 flex-shrink-0"></i> Consejos de IA y revisión de nóminas</li>
+            </ul>
+          </div>
+          <button onclick="loginAs('company')" class="mt-7 w-full py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm transition-colors shadow-md shadow-blue-500/20 flex items-center justify-center space-x-2">
+            <span>Probar Vista Empresa (Editar)</span>
+            <i data-lucide="arrow-right" class="w-4 h-4"></i>
+          </button>
+        </div>
+
+        <!-- ROL 3: ADMINISTRADOR / PLATAFORMA -->
+        <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/60 p-7 flex flex-col justify-between hover:shadow-lg transition-all">
+          <div>
+            <div class="w-12 h-12 rounded-xl bg-purple-100 dark:bg-purple-900/40 text-purple-600 flex items-center justify-center mb-5">
+              <i data-lucide="shield-alert" class="w-6 h-6"></i>
+            </div>
+            <div class="flex items-center space-x-2">
+              <h4 class="text-xl font-bold text-slate-900 dark:text-white">Vista Administrador</h4>
+              <span class="text-[10px] uppercase font-bold px-2 py-0.5 rounded-full bg-purple-100 text-purple-800 dark:bg-purple-900/60 dark:text-purple-200">SuperAdmin</span>
+            </div>
+            <p class="text-sm text-slate-600 dark:text-slate-400 mt-3 leading-relaxed">
+              Panel maestro para los administradores. Gestión de usuarios, planes pagados, control de cobros y monitorización de ciberseguridad con logs en tiempo real.
+            </p>
+            <ul class="mt-5 space-y-2 text-sm text-slate-600 dark:text-slate-400">
+              <li class="flex items-center"><i data-lucide="check" class="w-4 h-4 text-emerald-500 mr-2 flex-shrink-0"></i> Gestión de usuarios y empresas registradas</li>
+              <li class="flex items-center"><i data-lucide="check" class="w-4 h-4 text-emerald-500 mr-2 flex-shrink-0"></i> Control de acceso según plan pagado</li>
+              <li class="flex items-center"><i data-lucide="check" class="w-4 h-4 text-emerald-500 mr-2 flex-shrink-0"></i> <strong class="text-slate-900 dark:text-white">Visor de logs de auditoría</strong> (IP, navegador)</li>
+              <li class="flex items-center"><i data-lucide="check" class="w-4 h-4 text-emerald-500 mr-2 flex-shrink-0"></i> Registro de certificados de borrado seguro</li>
+            </ul>
+          </div>
+          <button onclick="loginAs('admin')" class="mt-7 w-full py-2.5 rounded-xl bg-purple-500/10 hover:bg-purple-500/20 text-purple-700 dark:text-purple-300 font-semibold text-sm transition-colors border border-purple-500/30 flex items-center justify-center space-x-2">
+            <span>Probar Vista Administrador</span>
+            <i data-lucide="arrow-right" class="w-4 h-4"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================================= -->
+  <!-- APLICACIÓN WEB INTERACTIVA (INTEGRADA DIRECTAMENTE EN LA PORTADA)         -->
+  <!-- ========================================================================= -->
+  <section id="app-workspace" class="py-16 bg-slate-100 dark:bg-slate-900/50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <!-- Barra Superior de la Aplicación -->
+      <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-xl overflow-hidden">
+        <div class="p-6 border-b border-slate-200 dark:border-slate-800 flex flex-wrap items-center justify-between gap-4 bg-slate-50/50 dark:bg-slate-900/50">
+          <div class="flex items-center space-x-3">
+            <span class="flex h-3 w-3 rounded-full bg-emerald-500 animate-pulse"></span>
+            <div>
+              <div class="flex items-center space-x-2">
+                <h3 class="font-bold text-lg text-slate-900 dark:text-white" id="currentWorkspaceTitle">Estudio Creativo Vega SL (CIF: B-12345678)</h3>
+                <span id="roleBadge" class="text-xs px-2.5 py-0.5 rounded-full font-bold bg-blue-100 text-blue-700 dark:bg-blue-900/60 dark:text-blue-300">Vista Empresa</span>
+              </div>
+              <p class="text-xs text-slate-500" id="currentWorkspaceSubtitle">Periodo fiscal activo: Octubre 2025 – Marzo 2026 · Plan Profesional Activo</p>
+            </div>
+          </div>
+
+          <!-- Selector de Modo Rápido para Pruebas del Tribunal -->
+          <div class="flex items-center space-x-2 bg-slate-100 dark:bg-slate-800 p-1.5 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-semibold">
+            <span class="text-slate-500 px-2">Cambiar Rol:</span>
+            <button onclick="loginAs('employee')" id="btnRoleEmp" class="px-3 py-1.5 rounded-lg transition-colors">Empleado</button>
+            <button onclick="loginAs('company')" id="btnRoleCom" class="px-3 py-1.5 rounded-lg bg-blue-600 text-white shadow-sm">Empresa</button>
+            <button onclick="loginAs('admin')" id="btnRoleAdm" class="px-3 py-1.5 rounded-lg transition-colors">Admin</button>
+          </div>
+        </div>
+
+        <!-- =================== VISTA EMPLEADO Y EMPRESA =================== -->
+        <div id="viewUserAndCompany" class="p-6 lg:p-8 space-y-8">
+          
+          <!-- KPIs con Paleta Oficial: Verde Ingresos, Rojo Gastos, Azul Totales -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            <!-- Facturación Neta (Verde) -->
+            <div class="p-5 rounded-2xl bg-emerald-50/80 dark:bg-emerald-950/30 border border-emerald-200/80 dark:border-emerald-800/80">
+              <div class="flex items-center justify-between text-emerald-700 dark:text-emerald-400 text-xs font-bold uppercase">
+                <span>Facturación Neta</span>
+                <i data-lucide="trending-up" class="w-4 h-4"></i>
+              </div>
+              <div class="mt-2 text-2xl lg:text-3xl font-extrabold text-emerald-600 dark:text-emerald-400 font-mono-numbers" id="kpiIncome">
+                26.750,00 €
+              </div>
+              <div class="mt-1 text-xs text-emerald-800/80 dark:text-emerald-300/80 font-medium" id="kpiIncomeCount">
+                10 facturas emitidas
+              </div>
+            </div>
+
+            <!-- Gastos Netos (Rojo) -->
+            <div class="p-5 rounded-2xl bg-rose-50/80 dark:bg-rose-950/30 border border-rose-200/80 dark:border-rose-800/80">
+              <div class="flex items-center justify-between text-rose-700 dark:text-rose-400 text-xs font-bold uppercase">
+                <span>Gastos Deducibles</span>
+                <i data-lucide="trending-down" class="w-4 h-4"></i>
+              </div>
+              <div class="mt-2 text-2xl lg:text-3xl font-extrabold text-rose-600 dark:text-rose-400 font-mono-numbers" id="kpiExpense">
+                588,63 €
+              </div>
+              <div class="mt-1 text-xs text-rose-800/80 dark:text-rose-300/80 font-medium" id="kpiExpenseCount">
+                6 facturas recibidas
+              </div>
+            </div>
+
+            <!-- Beneficio Neto (Azul Totales) -->
+            <div class="p-5 rounded-2xl bg-blue-50/80 dark:bg-blue-950/30 border border-blue-200/80 dark:border-blue-800/80">
+              <div class="flex items-center justify-between text-blue-700 dark:text-blue-400 text-xs font-bold uppercase">
+                <span>Beneficio Neto</span>
+                <i data-lucide="wallet" class="w-4 h-4"></i>
+              </div>
+              <div class="mt-2 text-2xl lg:text-3xl font-extrabold text-blue-600 dark:text-blue-400 font-mono-numbers" id="kpiProfit">
+                26.161,37 €
+              </div>
+              <div class="mt-1 text-xs text-blue-800/80 dark:text-blue-300/80 font-medium" id="kpiMargin">
+                Margen Comercial: 97,8%
+              </div>
+            </div>
+
+            <!-- IVA a Liquidar / Modelo 303 -->
+            <div class="p-5 rounded-2xl bg-indigo-50/80 dark:bg-indigo-950/30 border border-indigo-200/80 dark:border-indigo-800/80">
+              <div class="flex items-center justify-between text-indigo-700 dark:text-indigo-400 text-xs font-bold uppercase">
+                <span>Modelo 303 (IVA a Pagar)</span>
+                <i data-lucide="calculator" class="w-4 h-4"></i>
+              </div>
+              <div class="mt-2 text-2xl lg:text-3xl font-extrabold text-indigo-600 dark:text-indigo-400 font-mono-numbers" id="kpiVatPay">
+                5.493,89 €
+              </div>
+              <div class="mt-1 text-xs text-indigo-800/80 dark:text-indigo-300/80 font-medium">
+                Repercutido - Soportado
+              </div>
+            </div>
+          </div>
+
+          <!-- Módulo de Subida Temporal (Solo visible o editable en rol Empresa) -->
+          <div id="companyUploadSection" class="p-6 rounded-2xl border-2 border-dashed border-blue-300 dark:border-blue-900/60 bg-blue-50/40 dark:bg-blue-950/20 text-center">
+            <div class="max-w-md mx-auto">
+              <i data-lucide="upload-cloud" class="w-10 h-10 text-blue-600 dark:text-blue-400 mx-auto mb-3"></i>
+              <h4 class="font-bold text-slate-900 dark:text-white text-base">Subir nuevas facturas o nóminas (PDF / Imagen)</h4>
+              <p class="text-xs text-slate-500 mt-1">Los documentos se analizan con IA en memoria efímera y se borran automáticamente tras extraer los datos.</p>
+              
+              <div class="mt-4 flex justify-center gap-3">
+                <label class="cursor-pointer px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow transition-colors inline-flex items-center space-x-1.5">
+                  <i data-lucide="plus" class="w-4 h-4"></i>
+                  <span>Seleccionar Facturas</span>
+                  <input type="file" id="fileUploadInput" class="hidden" multiple accept=".pdf,.png,.jpg,.jpeg,.xml" onchange="simulateUpload(event)">
+                </label>
+                <button onclick="openNewInvoiceModal()" class="px-4 py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold hover:bg-slate-50 transition-colors inline-flex items-center space-x-1.5">
+                  <i data-lucide="edit-3" class="w-4 h-4"></i>
+                  <span>Añadir Factura a Mano</span>
+                </button>
+              </div>
+
+              <!-- Barra de progreso simulada -->
+              <div id="uploadProgressBar" class="hidden mt-4">
+                <div class="flex justify-between text-xs font-semibold mb-1 text-blue-700 dark:text-blue-300">
+                  <span id="uploadStatusText">Procesando con IA...</span>
+                  <span id="uploadPercentText">65%</span>
+                </div>
+                <div class="w-full bg-slate-200 rounded-full h-2 dark:bg-slate-700 overflow-hidden">
+                  <div id="uploadProgressFill" class="bg-blue-600 h-2 rounded-full transition-all duration-300" style="width: 65%"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Banner Informativo para Rol Empleado -->
+          <div id="employeeNotice" class="hidden p-4 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/80 text-amber-800 dark:text-amber-200 text-xs flex items-center space-x-3">
+            <i data-lucide="info" class="w-5 h-5 flex-shrink-0 text-amber-600"></i>
+            <div>
+              <strong>Modo Empleado (Vista Consulta Activa):</strong> Tienes permisos de lectura y descarga de datos. La edición de importes, eliminación y subida de nuevas facturas está restringida a los gerentes de la empresa.
+            </div>
+          </div>
+
+          <!-- Tabla de Facturas con Edición en Tiempo Real -->
+          <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
+            <div class="p-5 border-b border-slate-200 dark:border-slate-800 flex flex-wrap items-center justify-between gap-4">
+              <div>
+                <h4 class="font-bold text-slate-900 dark:text-white text-base">Registro de Facturas Procesadas</h4>
+                <p class="text-xs text-slate-500">Datos normalizados por el motor fiscal y la IA local</p>
+              </div>
+
+              <div class="flex items-center space-x-2">
+                <input type="text" id="tableSearch" placeholder="Buscar por cliente, NIF..." oninput="filterInvoices()" class="px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <select id="typeFilter" onchange="filterInvoices()" class="px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs text-slate-800 dark:text-slate-100 focus:outline-none">
+                  <option value="ALL">Todos los tipos</option>
+                  <option value="INGRESO">Solo Ingresos (10)</option>
+                  <option value="GASTO">Solo Gastos (6)</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Tabla -->
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-xs">
+                <thead class="bg-slate-50 dark:bg-slate-800/60 text-slate-500 font-semibold border-b border-slate-200 dark:border-slate-800">
+                  <tr>
+                    <th class="py-3 px-4">Tipo</th>
+                    <th class="py-3 px-4">Nº Factura</th>
+                    <th class="py-3 px-4">Fecha</th>
+                    <th class="py-3 px-4">Emisor / Receptor</th>
+                    <th class="py-3 px-4">Concepto</th>
+                    <th class="py-3 px-4 text-right">Base Imponible</th>
+                    <th class="py-3 px-4 text-right">IVA</th>
+                    <th class="py-3 px-4 text-right">IRPF</th>
+                    <th class="py-3 px-4 text-right">Total</th>
+                    <th class="py-3 px-4 text-center action-col">Acción</th>
+                  </tr>
+                </thead>
+                <tbody id="invoicesTableBody" class="divide-y divide-slate-100 dark:divide-slate-800/60 font-mono-numbers">
+                  <!-- Se genera dinámicamente con JavaScript -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- =================== VISTA ADMINISTRADOR =================== -->
+        <div id="viewAdminSection" class="hidden p-6 lg:p-8 space-y-8">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+            <div class="p-5 rounded-2xl bg-purple-50 dark:bg-purple-950/30 border border-purple-200 dark:border-purple-800/80">
+              <div class="text-xs font-bold text-purple-700 dark:text-purple-300 uppercase">Empresas Registradas</div>
+              <div class="text-3xl font-extrabold text-purple-600 dark:text-purple-400 mt-2 font-mono-numbers">24</div>
+              <div class="text-xs text-purple-800 dark:text-purple-300 mt-1">18 en Plan Profesional · 6 en Básico</div>
+            </div>
+            <div class="p-5 rounded-2xl bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800/80">
+              <div class="text-xs font-bold text-blue-700 dark:text-blue-300 uppercase">Ingresos Recurrentes (MRR)</div>
+              <div class="text-3xl font-extrabold text-blue-600 dark:text-blue-400 mt-2 font-mono-numbers">1.740,00 €</div>
+              <div class="text-xs text-blue-800 dark:text-blue-300 mt-1">+15% respecto al mes anterior</div>
+            </div>
+            <div class="p-5 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/80">
+              <div class="text-xs font-bold text-emerald-700 dark:text-emerald-300 uppercase">Archivos Destruidos (DoD 5220.22-M)</div>
+              <div class="text-3xl font-extrabold text-emerald-600 dark:text-emerald-400 mt-2 font-mono-numbers">1.482</div>
+              <div class="text-xs text-emerald-800 dark:text-emerald-300 mt-1">Cero fugas de información · 100% RGPD</div>
+            </div>
+          </div>
+
+          <!-- Visor de Logs de Ciberseguridad en Tiempo Real -->
+          <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden">
+            <div class="p-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+              <div>
+                <h4 class="font-bold text-slate-900 dark:text-white text-base flex items-center space-x-2">
+                  <i data-lucide="shield-check" class="w-5 h-5 text-emerald-500"></i>
+                  <span>Logs de Auditoría de Ciberseguridad (Inmutables)</span>
+                </h4>
+                <p class="text-xs text-slate-500">Registro de inicios de sesión, IPs, agentes de usuario y eventos de borrado</p>
+              </div>
+              <span class="text-xs px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-200 font-bold flex items-center space-x-1.5">
+                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+                <span>Monitor Activo</span>
+              </span>
+            </div>
+
+            <div class="overflow-x-auto font-mono text-xs">
+              <table class="w-full text-left">
+                <thead class="bg-slate-50 dark:bg-slate-800/60 text-slate-500 font-semibold border-b border-slate-200 dark:border-slate-800">
+                  <tr>
+                    <th class="py-3 px-4">Fecha / Hora</th>
+                    <th class="py-3 px-4">Evento</th>
+                    <th class="py-3 px-4">Usuario</th>
+                    <th class="py-3 px-4">Dirección IP</th>
+                    <th class="py-3 px-4">Navegador / SO</th>
+                    <th class="py-3 px-4">Estado</th>
+                  </tr>
+                </thead>
+                <tbody id="auditLogsBody" class="divide-y divide-slate-100 dark:divide-slate-800/60 text-slate-700 dark:text-slate-300">
+                  <!-- Inyectado por JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================================= -->
+  <!-- SECCIÓN 3: LAS 3 AUTOMATIZACIONES COMPLETAS                              -->
+  <!-- ========================================================================= -->
+  <section id="automatizacion" class="py-16 bg-white dark:bg-slate-900">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center max-w-3xl mx-auto mb-14">
+        <h2 class="text-xs font-bold uppercase tracking-wider text-blue-600">Automatización de Procesos</h2>
+        <h3 class="mt-2 text-3xl font-extrabold text-slate-900 dark:text-white">Los 3 Flujos Inteligentes del Proyecto</h3>
+        <p class="mt-3 text-slate-600 dark:text-slate-300">
+          Diseñado para eliminar el 95% del trabajo manual de autónomos y asesorías mediante bots, flujos de correo y ciberseguridad.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+        
+        <!-- AUTOMATIZACIÓN 1: SIMULADOR DE BOT DE TELEGRAM -->
+        <div id="telegram-simulator" class="rounded-3xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 p-6 lg:p-8 shadow-sm">
+          <div class="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-800">
+            <div class="flex items-center space-x-3">
+              <div class="w-10 h-10 rounded-full bg-blue-500 text-white flex items-center justify-center font-bold">
+                <i data-lucide="send" class="w-5 h-5"></i>
+              </div>
+              <div>
+                <h4 class="font-bold text-slate-900 dark:text-white text-base">Bot Asistente de Facturas (Telegram)</h4>
+                <p class="text-xs text-emerald-500 font-semibold flex items-center space-x-1">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block"></span>
+                  <span>En línea · Conectado a PostgreSQL</span>
+                </p>
+              </div>
+            </div>
+            <a href="https://t.me/+34633971527" target="_blank" class="text-xs font-bold text-blue-600 hover:underline">Abrir en App</a>
+          </div>
+
+          <!-- Ventana de Chat del Bot -->
+          <div class="mt-4 h-72 overflow-y-auto space-y-3 p-3 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 text-xs" id="telegramChatBox">
+            <div class="bg-blue-50 dark:bg-blue-950/50 text-blue-900 dark:text-blue-200 p-3 rounded-2xl max-w-[85%] rounded-tl-none">
+              👋 <strong>¡Hola! Soy tu bot asistente de facturas.</strong><br>
+              Puedo darte tus cifras al momento, calcular tu Modelo 303 de IVA o darte consejos fiscales. Prueba haciendo clic en los botones de abajo:
+            </div>
+          </div>
+
+          <!-- Botones de Comandos del Bot -->
+          <div class="mt-4 grid grid-cols-2 sm:grid-cols-3 gap-2">
+            <button onclick="sendBotCommand('/resumen')" class="px-3 py-2 rounded-xl bg-slate-200 dark:bg-slate-800 hover:bg-blue-600 hover:text-white transition-colors text-xs font-semibold text-slate-700 dark:text-slate-300">
+              📊 /resumen
+            </button>
+            <button onclick="sendBotCommand('/facturas')" class="px-3 py-2 rounded-xl bg-slate-200 dark:bg-slate-800 hover:bg-blue-600 hover:text-white transition-colors text-xs font-semibold text-slate-700 dark:text-slate-300">
+              🧾 /facturas
+            </button>
+            <button onclick="sendBotCommand('/iva')" class="px-3 py-2 rounded-xl bg-slate-200 dark:bg-slate-800 hover:bg-blue-600 hover:text-white transition-colors text-xs font-semibold text-slate-700 dark:text-slate-300">
+              📑 /iva (Mod 303)
+            </button>
+            <button onclick="sendBotCommand('/gastos')" class="px-3 py-2 rounded-xl bg-slate-200 dark:bg-slate-800 hover:bg-blue-600 hover:text-white transition-colors text-xs font-semibold text-slate-700 dark:text-slate-300">
+              🔴 /gastos
+            </button>
+            <button onclick="sendBotCommand('/consejo')" class="px-3 py-2 rounded-xl bg-slate-200 dark:bg-slate-800 hover:bg-blue-600 hover:text-white transition-colors text-xs font-semibold text-slate-700 dark:text-slate-300">
+              💡 /consejo IA
+            </button>
+            <button onclick="sendBotCommand('/contacto')" class="px-3 py-2 rounded-xl bg-slate-200 dark:bg-slate-800 hover:bg-blue-600 hover:text-white transition-colors text-xs font-semibold text-slate-700 dark:text-slate-300">
+              📞 /contacto
+            </button>
+          </div>
+        </div>
+
+        <!-- AUTOMATIZACIÓN 2 Y 3: CORREOS AUTOMÁTICOS Y CIBERSEGURIDAD -->
+        <div class="space-y-6">
+          <!-- Correo Automático -->
+          <div class="p-6 rounded-3xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950">
+            <div class="flex items-center space-x-3 mb-3">
+              <div class="w-10 h-10 rounded-xl bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 flex items-center justify-center">
+                <i data-lucide="mail-check" class="w-5 h-5"></i>
+              </div>
+              <div>
+                <h4 class="font-bold text-slate-900 dark:text-white text-base">Recepción y Entrega por Correo (EmailJS / SMTP)</h4>
+                <p class="text-xs text-slate-500">Pipeline desatendido de facturas adjuntas</p>
+              </div>
+            </div>
+            <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+              El cliente envía sus facturas por correo electrónico. El worker las descarga, verifica la firma digital, corre la IA local de extracción y le envía de vuelta un correo con el PDF consolidado y la URL privada firmada.
+            </p>
+            <div class="mt-3 flex items-center space-x-2 text-xs font-semibold text-blue-600 dark:text-blue-400">
+              <i data-lucide="zap" class="w-4 h-4"></i>
+              <span>Integrado con n8n y scripts automáticos</span>
+            </div>
+          </div>
+
+          <!-- Ciberseguridad y Destrucción Criptográfica -->
+          <div class="p-6 rounded-3xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950">
+            <div class="flex items-center space-x-3 mb-3">
+              <div class="w-10 h-10 rounded-xl bg-indigo-100 dark:bg-indigo-900/40 text-indigo-600 flex items-center justify-center">
+                <i data-lucide="lock" class="w-5 h-5"></i>
+              </div>
+              <div>
+                <h4 class="font-bold text-slate-900 dark:text-white text-base">Ciberseguridad y Borrado Demostrable</h4>
+                <p class="text-xs text-slate-500">OWASP ASVS Nivel 2 · ENS · RGPD Art. 5.1.c</p>
+              </div>
+            </div>
+            <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+              Las contraseñas se almacenan con hash <strong class="text-slate-800 dark:text-slate-200">Argon2id</strong>. La base de datos aplica políticas de aislamiento <strong class="text-slate-800 dark:text-slate-200">RLS (Row-Level Security)</strong> para que ninguna empresa pueda leer datos de otra. Los archivos temporales se destruyen con sobreescritura segura emitiendo un certificado con hash SHA-256.
+            </p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================================= -->
+  <!-- SECCIÓN: PLANES Y PRECIOS                                                -->
+  <!-- ========================================================================= -->
+  <section id="planes" class="py-16 bg-slate-50 dark:bg-slate-950/60 border-t border-slate-200 dark:border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center max-w-3xl mx-auto mb-14">
+        <h2 class="text-xs font-bold uppercase tracking-wider text-blue-600">Modelos de Suscripción</h2>
+        <h3 class="mt-2 text-3xl font-extrabold text-slate-900 dark:text-white">Precios transparentes y sin permanencia</h3>
+        <p class="mt-3 text-slate-600 dark:text-slate-300">
+          Elige el plan que mejor se adapte al volumen de tu negocio. El acceso a la aplicación se activa automáticamente tras verificar el pago de la suscripción.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <!-- PLAN GRATUITO -->
+        <div class="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex flex-col justify-between shadow-sm">
+          <div>
+            <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Prueba</span>
+            <h4 class="text-xl font-bold text-slate-900 dark:text-white mt-1">Gratuito</h4>
+            <div class="mt-4 flex items-baseline">
+              <span class="text-4xl font-extrabold font-mono-numbers">0 €</span>
+              <span class="text-xs text-slate-500 ml-1">/demo</span>
+            </div>
+            <p class="text-xs text-slate-500 mt-2">Para comprobar el funcionamiento con facturas de prueba.</p>
+            <ul class="mt-5 space-y-2.5 text-xs text-slate-600 dark:text-slate-400">
+              <li class="flex items-center"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-500 mr-2"></i> Hasta 5 facturas</li>
+              <li class="flex items-center"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-500 mr-2"></i> Dashboard básico</li>
+              <li class="flex items-center"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-500 mr-2"></i> Borrado automático</li>
+            </ul>
+          </div>
+          <button onclick="loginAs('employee')" class="mt-6 w-full py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 font-semibold text-xs text-slate-700 dark:text-slate-200 hover:bg-slate-50 transition-colors">
+            Probar Gratis
+          </button>
+        </div>
+
+        <!-- PLAN BÁSICO -->
+        <div class="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex flex-col justify-between shadow-sm">
+          <div>
+            <span class="text-xs font-bold text-blue-600 uppercase tracking-wider">Autónomos</span>
+            <h4 class="text-xl font-bold text-slate-900 dark:text-white mt-1">Básico</h4>
+            <div class="mt-4 flex items-baseline">
+              <span class="text-4xl font-extrabold font-mono-numbers">50 €</span>
+              <span class="text-xs text-slate-500 ml-1">/mes</span>
+            </div>
+            <p class="text-xs text-slate-500 mt-2">Ideal para autónomos con volumen moderado de facturas.</p>
+            <ul class="mt-5 space-y-2.5 text-xs text-slate-600 dark:text-slate-400">
+              <li class="flex items-center"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-500 mr-2"></i> Hasta 20 facturas/mes</li>
+              <li class="flex items-center"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-500 mr-2"></i> Entrega en &lt; 24 horas</li>
+              <li class="flex items-center"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-500 mr-2"></i> Modelo 303 y 111</li>
+              <li class="flex items-center"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-500 mr-2"></i> Soporte por email</li>
+            </ul>
+          </div>
+          <button onclick="openLoginModal()" class="mt-6 w-full py-2.5 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 font-semibold text-xs hover:bg-blue-100 transition-colors">
+            Contratar Plan
+          </button>
+        </div>
+
+        <!-- PLAN PROFESIONAL -->
+        <div class="p-6 rounded-2xl bg-white dark:bg-slate-900 border-2 border-blue-600 flex flex-col justify-between shadow-lg relative">
+          <div class="absolute -top-3 left-1/2 -translate-x-1/2 px-2.5 py-0.5 rounded-full bg-blue-600 text-white text-[10px] font-bold uppercase">
+            Más Popular
+          </div>
+          <div>
+            <span class="text-xs font-bold text-blue-600 uppercase tracking-wider">Pymes y Negocios</span>
+            <h4 class="text-xl font-bold text-slate-900 dark:text-white mt-1">Profesional</h4>
+            <div class="mt-4 flex items-baseline">
+              <span class="text-4xl font-extrabold font-mono-numbers">80 €</span>
+              <span class="text-xs text-slate-500 ml-1">/mes</span>
+            </div>
+            <p class="text-xs text-slate-500 mt-2">Para empresas que necesitan rapidez y bot de Telegram.</p>
+            <ul class="mt-5 space-y-2.5 text-xs text-slate-600 dark:text-slate-400">
+              <li class="flex items-center"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-500 mr-2"></i> Hasta 60 facturas/mes</li>
+              <li class="flex items-center"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-500 mr-2"></i> Entrega en &lt; 12 horas</li>
+              <li class="flex items-center"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-500 mr-2"></i> Bot de Telegram incluido</li>
+              <li class="flex items-center"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-500 mr-2"></i> Revisión de nóminas</li>
+            </ul>
+          </div>
+          <button onclick="loginAs('company')" class="mt-6 w-full py-2.5 rounded-xl bg-blue-600 text-white font-semibold text-xs hover:bg-blue-700 transition-colors shadow">
+            Contratar Profesional
+          </button>
+        </div>
+
+        <!-- INSTALACIÓN ON-PREMISE -->
+        <div class="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex flex-col justify-between shadow-sm">
+          <div>
+            <span class="text-xs font-bold text-indigo-600 uppercase tracking-wider">Empresas / Asesorías</span>
+            <h4 class="text-xl font-bold text-slate-900 dark:text-white mt-1">Instalación Única</h4>
+            <div class="mt-4 flex items-baseline">
+              <span class="text-4xl font-extrabold font-mono-numbers">200 €</span>
+              <span class="text-xs text-slate-500 ml-1">pago único</span>
+            </div>
+            <p class="text-xs text-slate-500 mt-2">Despliegue en servidor del cliente con IA 100% privada.</p>
+            <ul class="mt-5 space-y-2.5 text-xs text-slate-600 dark:text-slate-400">
+              <li class="flex items-center"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-500 mr-2"></i> Instalación en tu servidor</li>
+              <li class="flex items-center"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-500 mr-2"></i> Manual técnico y usuario</li>
+              <li class="flex items-center"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-500 mr-2"></i> 1h formación personalizada</li>
+              <li class="flex items-center"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-500 mr-2"></i> 1 mes de soporte dedicado</li>
+            </ul>
+          </div>
+          <a href="https://wa.me/34633971527?text=Hola%20Carlos,%20me%20interesa%20la%20instalacion%20On-Premise%20de%20200%20euros" target="_blank" class="mt-6 w-full py-2.5 rounded-xl border border-indigo-300 dark:border-indigo-800 text-indigo-600 dark:text-indigo-400 font-semibold text-xs hover:bg-indigo-50 dark:hover:bg-indigo-950/60 transition-colors text-center">
+            Solicitar Instalación
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================================= -->
+  <!-- SECCIÓN: CONTACTO DIRECTO (CARLOS PLATA MORÁN)                            -->
+  <!-- ========================================================================= -->
+  <section id="contacto" class="py-16 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center max-w-3xl mx-auto mb-12">
+        <h2 class="text-xs font-bold uppercase tracking-wider text-blue-600">Atención Directa</h2>
+        <h3 class="mt-2 text-3xl font-extrabold text-slate-900 dark:text-white">Contacta con Carlos Plata Morán</h3>
+        <p class="mt-3 text-slate-600 dark:text-slate-300">
+          ¿Tienes dudas sobre el proyecto, deseas una demostración personalizada o necesitas asistencia para configurar tu empresa?
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-stretch">
+        
+        <!-- TELEGRAM CON CÓDIGO QR -->
+        <div class="p-6 rounded-2xl border-2 border-blue-500/80 bg-blue-50/30 dark:bg-blue-950/20 flex flex-col items-center text-center shadow-md">
+          <div class="w-12 h-12 rounded-2xl bg-blue-500 text-white flex items-center justify-center mb-4">
+            <i data-lucide="send" class="w-6 h-6"></i>
+          </div>
+          <h4 class="font-bold text-slate-900 dark:text-white text-base">Canal Telegram & Bot</h4>
+          <p class="text-xs text-slate-500 mt-1 mb-4">Escanea el código QR o pulsa el enlace directo</p>
+          
+          <!-- Imagen del QR proporcionada por el usuario -->
+          <div class="p-2 bg-white rounded-xl border border-slate-200 shadow-sm max-w-[170px] mb-4">
+            <img src="assets/qr-telegram.png" onerror="this.src='assets/qr-telegram.jpg'" alt="Código QR Telegram +34633971527" class="w-full h-auto rounded-lg">
+          </div>
+          <div class="text-xs font-bold font-mono text-slate-800 dark:text-slate-200 mb-3">+34 633 97 15 27</div>
+          <a href="https://t.me/+34633971527" target="_blank" class="w-full py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs shadow transition-colors flex items-center justify-center space-x-1.5">
+            <span>Abrir Telegram</span>
+            <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+          </a>
+        </div>
+
+        <!-- WHATSAPP DIRECTO -->
+        <div class="p-6 rounded-2xl border border-emerald-300 dark:border-emerald-800/80 bg-emerald-50/30 dark:bg-emerald-950/20 flex flex-col justify-between text-center shadow-sm">
+          <div>
+            <div class="w-12 h-12 rounded-2xl bg-emerald-500 text-white flex items-center justify-center mx-auto mb-4">
+              <i data-lucide="message-circle" class="w-6 h-6"></i>
+            </div>
+            <h4 class="font-bold text-slate-900 dark:text-white text-base">Chat de WhatsApp</h4>
+            <p class="text-xs text-slate-500 mt-1">Respuesta rápida y soporte inmediato</p>
+            <div class="text-sm font-extrabold text-emerald-600 dark:text-emerald-400 font-mono mt-4">
+              +34 633 97 15 27
+            </div>
+            <p class="text-xs text-slate-500 mt-2">Disponible de Lunes a Domingo para consultas de proyectos.</p>
+          </div>
+          <a href="https://wa.me/34633971527?text=Hola%20Carlos,%20he%20visto%20tu%20proyecto%20de%20Dashboard%20de%20Facturaciones" target="_blank" class="mt-6 w-full py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs shadow transition-colors flex items-center justify-center space-x-1.5">
+            <span>Escribir por WhatsApp</span>
+            <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+          </a>
+        </div>
+
+        <!-- TELÉFONO Y LLAMADA -->
+        <div class="p-6 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex flex-col justify-between text-center shadow-sm">
+          <div>
+            <div class="w-12 h-12 rounded-2xl bg-indigo-500 text-white flex items-center justify-center mx-auto mb-4">
+              <i data-lucide="phone-call" class="w-6 h-6"></i>
+            </div>
+            <h4 class="font-bold text-slate-900 dark:text-white text-base">Llamada Telefónica</h4>
+            <p class="text-xs text-slate-500 mt-1">Línea directa para reuniones o dudas técnicas</p>
+            <div class="text-sm font-extrabold text-indigo-600 dark:text-indigo-400 font-mono mt-4">
+              +34 633 97 15 27
+            </div>
+            <p class="text-xs text-slate-500 mt-2">Atención para tribunal de evaluación 2º DAW.</p>
+          </div>
+          <a href="tel:+34633971527" class="mt-6 w-full py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs shadow transition-colors flex items-center justify-center space-x-1.5">
+            <span>Llamar al Móvil</span>
+            <i data-lucide="phone" class="w-3.5 h-3.5"></i>
+          </a>
+        </div>
+
+        <!-- LINKEDIN Y CORREO -->
+        <div class="p-6 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex flex-col justify-between text-center shadow-sm">
+          <div>
+            <div class="w-12 h-12 rounded-2xl bg-sky-600 text-white flex items-center justify-center mx-auto mb-4">
+              <i data-lucide="linkedin" class="w-6 h-6"></i>
+            </div>
+            <h4 class="font-bold text-slate-900 dark:text-white text-base">Perfil Profesional</h4>
+            <p class="text-xs text-slate-500 mt-1">LinkedIn y Correo Institucional</p>
+            <div class="text-xs text-slate-700 dark:text-slate-300 font-medium mt-4 truncate">
+              carplamor25@iesfidiana.es
+            </div>
+            <p class="text-xs text-slate-500 mt-2">Conéctate conmigo en LinkedIn para networking y oportunidades laborales.</p>
+          </div>
+          <a href="https://www.linkedin.com/in/carlos-plata-mor%C3%A1n-86a978445" target="_blank" class="mt-6 w-full py-2 rounded-xl bg-sky-600 hover:bg-sky-700 text-white font-semibold text-xs shadow transition-colors flex items-center justify-center space-x-1.5">
+            <span>Ver LinkedIn</span>
+            <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+          </a>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================================= -->
+  <!-- MODAL: LOGIN Y COMPROBACIÓN DE PAGO                                       -->
+  <!-- ========================================================================= -->
+  <div id="loginModal" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 max-w-md w-full p-7 shadow-2xl relative">
+      <button onclick="closeLoginModal()" class="absolute top-5 right-5 text-slate-400 hover:text-slate-600">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+
+      <div class="flex items-center space-x-3 mb-5">
+        <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center">
+          <i data-lucide="lock" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <h3 class="font-extrabold text-lg text-slate-900 dark:text-white">Acceso a la Aplicación</h3>
+          <p class="text-xs text-slate-500">Contraseñas seguras con hash Argon2id</p>
+        </div>
+      </div>
+
+      <!-- Formulario de Login -->
+      <form onsubmit="handleFormLogin(event)" class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Correo Electrónico</label>
+          <input type="email" id="modalEmail" required value="empresa@estudiovega.es" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Contraseña</label>
+          <input type="password" id="modalPassword" required value="••••••••••••" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+
+        <div class="p-3 rounded-xl bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-xs text-slate-600 dark:text-slate-300 flex items-center space-x-2">
+          <i data-lucide="shield-check" class="w-4 h-4 text-emerald-500"></i>
+          <span>Comprobación de pago activa: Plan Profesional verificado.</span>
+        </div>
+
+        <button type="submit" class="w-full py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow transition-colors">
+          Iniciar Sesión
+        </button>
+      </form>
+
+      <!-- Accesos Directos para Pruebas del Tribunal de 2º DAW -->
+      <div class="mt-6 pt-5 border-t border-slate-200 dark:border-slate-800 text-center">
+        <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-3">Accesos Directos de Demostración:</span>
+        <div class="grid grid-cols-3 gap-2 text-xs">
+          <button onclick="loginAs('employee'); closeLoginModal()" class="p-2 rounded-lg bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800/60 font-semibold hover:opacity-80">
+            Empleado
+          </button>
+          <button onclick="loginAs('company'); closeLoginModal()" class="p-2 rounded-lg bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800/60 font-semibold hover:opacity-80">
+            Empresa
+          </button>
+          <button onclick="loginAs('admin'); closeLoginModal()" class="p-2 rounded-lg bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800/60 font-semibold hover:opacity-80">
+            Admin
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- MODAL: EDITAR FACTURA (ROL EMPRESA)                                       -->
+  <!-- ========================================================================= -->
+  <div id="editInvoiceModal" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 max-w-lg w-full p-6 shadow-2xl relative">
+      <button onclick="closeEditInvoiceModal()" class="absolute top-5 right-5 text-slate-400 hover:text-slate-600">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+
+      <h3 class="font-extrabold text-lg text-slate-900 dark:text-white mb-1">Modificar Datos de la Factura</h3>
+      <p class="text-xs text-slate-500 mb-4">La empresa puede corregir datos erróneos de la IA y el programa recalcula impuestos automáticamente.</p>
+
+      <form onsubmit="saveInvoiceEdit(event)" class="space-y-3 text-xs">
+        <input type="hidden" id="editIndex">
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold mb-1">Número Factura</label>
+            <input type="text" id="editNumber" required class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
+          </div>
+          <div>
+            <label class="block font-semibold mb-1">Fecha</label>
+            <input type="date" id="editDate" required class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-semibold mb-1">Cliente / Proveedor</label>
+          <input type="text" id="editEntity" required class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
+        </div>
+
+        <div>
+          <label class="block font-semibold mb-1">Concepto</label>
+          <input type="text" id="editConcept" required class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
+        </div>
+
+        <div class="grid grid-cols-3 gap-3">
+          <div>
+            <label class="block font-semibold mb-1">Base Imponible (€)</label>
+            <input type="number" step="0.01" id="editBase" required oninput="recalcModalTotals()" class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 font-mono">
+          </div>
+          <div>
+            <label class="block font-semibold mb-1">Tipo IVA (%)</label>
+            <select id="editVatRate" onchange="recalcModalTotals()" class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
+              <option value="21">21%</option>
+              <option value="10">10%</option>
+              <option value="4">4%</option>
+              <option value="0">0%</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-semibold mb-1">IRPF (%)</label>
+            <select id="editIrpfRate" onchange="recalcModalTotals()" class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
+              <option value="15">15%</option>
+              <option value="7">7%</option>
+              <option value="0">0%</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Previsualización de Cálculos en Tiempo Real -->
+        <div class="p-3 rounded-xl bg-slate-100 dark:bg-slate-800 font-mono text-xs space-y-1">
+          <div class="flex justify-between text-slate-600 dark:text-slate-400">
+            <span>Cuota IVA Calculada:</span>
+            <span id="previewVat">0.00 €</span>
+          </div>
+          <div class="flex justify-between text-slate-600 dark:text-slate-400">
+            <span>Retención IRPF:</span>
+            <span id="previewIrpf">0.00 €</span>
+          </div>
+          <div class="flex justify-between font-bold text-slate-900 dark:text-white pt-1 border-t border-slate-200 dark:border-slate-700">
+            <span>Total Recalculado:</span>
+            <span id="previewTotal" class="text-blue-600">0.00 €</span>
+          </div>
+        </div>
+
+        <button type="submit" class="w-full py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow transition-colors">
+          Guardar Cambios y Recalcular Dashboard
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- FOOTER                                                                    -->
+  <!-- ========================================================================= -->
+  <footer class="bg-slate-900 text-slate-400 py-12 border-t border-slate-800 text-xs">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-6">
+      <div>
+        <span class="font-bold text-white text-base">Dashboard de Facturaciones</span>
+        <p class="mt-1 text-slate-500">Proyecto Final 2º DAW · Desarrollado por Carlos Plata Morán</p>
+      </div>
+
+      <div class="flex flex-wrap gap-6 text-slate-400">
+        <a href="https://github.com/carplamor25-svg/Dashboard-De-facturaciones-Proyecto.git" target="_blank" class="hover:text-white flex items-center space-x-1">
+          <i data-lucide="github" class="w-4 h-4"></i>
+          <span>Repositorio GitHub</span>
+        </a>
+        <a href="https://www.linkedin.com/in/carlos-plata-mor%C3%A1n-86a978445" target="_blank" class="hover:text-white flex items-center space-x-1">
+          <i data-lucide="linkedin" class="w-4 h-4"></i>
+          <span>LinkedIn</span>
+        </a>
+        <a href="https://t.me/+34633971527" target="_blank" class="hover:text-white flex items-center space-x-1">
+          <i data-lucide="send" class="w-4 h-4"></i>
+          <span>Telegram</span>
+        </a>
+        <a href="tel:+34633971527" class="hover:text-white flex items-center space-x-1">
+          <i data-lucide="phone" class="w-4 h-4"></i>
+          <span>+34 633 97 15 27</span>
+        </a>
+      </div>
+
+      <p class="text-slate-600">© 2026 Todos los derechos reservados · Cumplimiento RGPD & VERI*FACTU</p>
+    </div>
+  </footer>
+
+  <!-- ========================================================================= -->
+  <!-- JAVASCRIPT DE LA APLICACIÓN (REACTIVA Y AUTOCONTENIDA)                     -->
+  <!-- ========================================================================= -->
+  <script>
+    // 1. Datos iniciales reales del kit (Estudio Creativo Vega SL, CIF B-12345678)
+    let currentRole = 'company'; // 'employee', 'company', 'admin'
+    
+    let invoices = [
+      { id: 1, type: 'INGRESO', number: 'F-2025-018', date: '2025-10-12', entity: 'Restaurante La Mesa SL', concept: 'Diseño de identidad visual completa (logo, manual de marca)', base: 1800.00, vatRate: 21, irpfRate: 15 },
+      { id: 2, type: 'INGRESO', number: 'F-2025-019', date: '2025-10-28', entity: 'Tech Startup Innova SL', concept: 'Diseño y desarrollo web responsive', base: 3500.00, vatRate: 21, irpfRate: 15 },
+      { id: 3, type: 'INGRESO', number: 'F-2025-020', date: '2025-11-15', entity: 'Boutique Mariposa SL', concept: 'Catálogo producto otoño-invierno + sesión', base: 1200.00, vatRate: 21, irpfRate: 15 },
+      { id: 4, type: 'INGRESO', number: 'F-2025-021', date: '2025-11-30', entity: 'Hotel Costa Blanca SA', concept: 'Web de reservas con motor + auditoría SEO', base: 4200.00, vatRate: 21, irpfRate: 15 },
+      { id: 5, type: 'INGRESO', number: 'F-2025-022', date: '2025-12-18', entity: 'Tech Startup Innova SL', concept: 'Mantenimiento web Q4 2025', base: 950.00, vatRate: 21, irpfRate: 15 },
+      { id: 6, type: 'INGRESO', number: 'F-2026-001', date: '2026-01-14', entity: 'Centro Médico Salud+ SL', concept: 'Identidad corporativa nuevo centro', base: 2400.00, vatRate: 21, irpfRate: 15 },
+      { id: 7, type: 'INGRESO', number: 'F-2026-002', date: '2026-01-29', entity: 'Restaurante La Mesa SL', concept: 'Gestión redes sociales enero 2026', base: 600.00, vatRate: 21, irpfRate: 15 },
+      { id: 8, type: 'INGRESO', number: 'F-2026-003', date: '2026-02-12', entity: 'Hotel Costa Blanca SA', concept: 'Campaña SEO contenidos + setup Google Ads', base: 2800.00, vatRate: 21, irpfRate: 15 },
+      { id: 9, type: 'INGRESO', number: 'F-2026-004', date: '2026-02-27', entity: 'Tech Startup Innova SL', concept: 'Rediseño dashboard administrador', base: 3800.00, vatRate: 21, irpfRate: 15 },
+      { id: 10, type: 'INGRESO', number: 'F-2026-005', date: '2026-03-20', entity: 'Boutique Mariposa SL', concept: 'Tienda online Shopify', base: 5500.00, vatRate: 21, irpfRate: 15 },
+      // GASTOS
+      { id: 11, type: 'GASTO', number: 'ADBE-25-10', date: '2025-10-01', entity: 'Adobe Systems Ireland Ltd', concept: 'Adobe Creative Cloud All Apps', base: 59.99, vatRate: 21, irpfRate: 0 },
+      { id: 12, type: 'GASTO', number: 'TEF-25-11', date: '2025-11-05', entity: 'Telefónica de España SAU', concept: 'Fibra 600Mb + telefonía fija', base: 49.95, vatRate: 21, irpfRate: 0 },
+      { id: 13, type: 'GASTO', number: 'IBE-25-12', date: '2025-12-10', entity: 'Iberdrola Clientes SAU', concept: 'Suministro eléctrico oficina', base: 145.30, vatRate: 21, irpfRate: 0 },
+      { id: 14, type: 'GASTO', number: 'HUB-26-01', date: '2026-01-15', entity: 'Impact Hub Madrid SL', concept: 'Cuota mensual coworking', base: 250.00, vatRate: 21, irpfRate: 0 },
+      { id: 15, type: 'GASTO', number: 'GOO-26-02', date: '2026-02-08', entity: 'Google Cloud EMEA Ltd', concept: 'Google Workspace Business Standard', base: 23.40, vatRate: 21, irpfRate: 0 },
+      { id: 16, type: 'GASTO', number: 'ADBE-26-03', date: '2026-03-01', entity: 'Adobe Systems Ireland Ltd', concept: 'Adobe Creative Cloud All Apps', base: 59.99, vatRate: 21, irpfRate: 0 }
+    ];
+
+    let auditLogs = [
+      { time: '2026-11-08 10:45:12', event: 'LOGIN_SUCCESS', user: 'carlos@estudiovega.es', ip: '88.12.45.190', ua: 'Chrome 128 / Windows 11', status: 'OK' },
+      { time: '2026-11-08 10:44:03', event: '2FA_CHALLENGE', user: 'carlos@estudiovega.es', ip: '88.12.45.190', ua: 'Chrome 128 / Windows 11', status: 'TOTP_OK' },
+      { time: '2026-11-08 09:30:19', event: 'FILE_SHREDDED', user: 'SYSTEM_CRON', ip: '127.0.0.1', ua: 'DoD 5220.22-M Daemon', status: 'DESTRUIDO_SHA256' },
+      { time: '2026-11-08 08:15:40', event: 'LOGIN_SUCCESS', user: 'empleado@estudiovega.es', ip: '83.50.210.14', ua: 'Firefox 130 / macOS', status: 'OK_READONLY' },
+      { time: '2026-11-08 07:11:05', event: 'LOGIN_FAILED', user: 'unknown@botnet.ru', ip: '194.26.29.11', ua: 'Python-requests/2.31', status: 'BLOCKED_TURNSTILE' }
+    ];
+
+    // Formateador de moneda en euros
+    function formatCurrency(val) {
+      return val.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
+    }
+
+    // Recalcular métricas contables
+    function calculateDashboard() {
+      let totalIncome = 0;
+      let totalExpense = 0;
+      let vatRepercutido = 0;
+      let vatSoportado = 0;
+      let irpfRetenido = 0;
+      let incomeCount = 0;
+      let expenseCount = 0;
+
+      invoices.forEach(inv => {
+        const vat = inv.base * (inv.vatRate / 100);
+        const irpf = inv.base * (inv.irpfRate / 100);
+
+        if (inv.type === 'INGRESO') {
+          totalIncome += inv.base;
+          vatRepercutido += vat;
+          irpfRetenido += irpf;
+          incomeCount++;
+        } else {
+          totalExpense += inv.base;
+          vatSoportado += vat;
+          expenseCount++;
+        }
+      });
+
+      const profit = totalIncome - totalExpense;
+      const margin = totalIncome > 0 ? ((profit / totalIncome) * 100).toFixed(1) : '0';
+      const vatPay = vatRepercutido - vatSoportado;
+
+      document.getElementById('kpiIncome').innerText = formatCurrency(totalIncome);
+      document.getElementById('kpiIncomeCount').innerText = `${incomeCount} facturas emitidas`;
+
+      document.getElementById('kpiExpense').innerText = formatCurrency(totalExpense);
+      document.getElementById('kpiExpenseCount').innerText = `${expenseCount} facturas recibidas`;
+
+      document.getElementById('kpiProfit').innerText = formatCurrency(profit);
+      document.getElementById('kpiMargin').innerText = `Margen Comercial: ${margin}%`;
+
+      document.getElementById('kpiVatPay').innerText = formatCurrency(vatPay);
+    }
+
+    // Renderizar la tabla de facturas
+    function renderInvoicesTable(dataToRender = invoices) {
+      const tbody = document.getElementById('invoicesTableBody');
+      tbody.innerHTML = '';
+
+      dataToRender.forEach((inv, index) => {
+        const vat = inv.base * (inv.vatRate / 100);
+        const irpf = inv.base * (inv.irpfRate / 100);
+        const total = inv.type === 'INGRESO' ? (inv.base + vat - irpf) : (inv.base + vat);
+
+        const isIncome = inv.type === 'INGRESO';
+        const typeBadge = isIncome 
+          ? `<span class="px-2 py-0.5 rounded-full font-bold text-[10px] bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">INGRESO</span>`
+          : `<span class="px-2 py-0.5 rounded-full font-bold text-[10px] bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300">GASTO</span>`;
+
+        let actionBtn = '';
+        if (currentRole === 'company') {
+          actionBtn = `<button onclick="openEditInvoiceModal(${index})" class="px-2.5 py-1 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white transition-colors font-bold text-[11px] flex items-center space-x-1 mx-auto">
+            <i data-lucide="edit-2" class="w-3 h-3"></i><span>Editar</span>
+          </button>`;
+        } else if (currentRole === 'employee') {
+          actionBtn = `<span class="text-slate-400 text-[10px] italic">Solo lectura</span>`;
+        } else {
+          actionBtn = `<span class="text-purple-600 text-[10px] font-bold">Admin Audit</span>`;
+        }
+
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors';
+        tr.innerHTML = `
+          <td class="py-3 px-4">${typeBadge}</td>
+          <td class="py-3 px-4 font-bold text-slate-900 dark:text-white">${inv.number}</td>
+          <td class="py-3 px-4 text-slate-500">${inv.date}</td>
+          <td class="py-3 px-4 font-semibold text-slate-800 dark:text-slate-200 font-sans">${inv.entity}</td>
+          <td class="py-3 px-4 text-slate-600 dark:text-slate-400 font-sans truncate max-w-xs" title="${inv.concept}">${inv.concept}</td>
+          <td class="py-3 px-4 text-right font-medium">${formatCurrency(inv.base)}</td>
+          <td class="py-3 px-4 text-right text-slate-500">${formatCurrency(vat)} (${inv.vatRate}%)</td>
+          <td class="py-3 px-4 text-right text-slate-500">${inv.irpfRate > 0 ? '-' + formatCurrency(irpf) + ' (15%)' : '-'}</td>
+          <td class="py-3 px-4 text-right font-bold ${isIncome ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}">${formatCurrency(total)}</td>
+          <td class="py-3 px-4 text-center">${actionBtn}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      lucide.createIcons();
+    }
+
+    // Renderizar Logs en Vista Admin
+    function renderAuditLogs() {
+      const tbody = document.getElementById('auditLogsBody');
+      tbody.innerHTML = '';
+      auditLogs.forEach(log => {
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-50/50 dark:hover:bg-slate-800/40';
+        tr.innerHTML = `
+          <td class="py-2.5 px-4 text-slate-500">${log.time}</td>
+          <td class="py-2.5 px-4 font-bold text-blue-600">${log.event}</td>
+          <td class="py-2.5 px-4">${log.user}</td>
+          <td class="py-2.5 px-4 text-slate-500">${log.ip}</td>
+          <td class="py-2.5 px-4 text-slate-500">${log.ua}</td>
+          <td class="py-2.5 px-4"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-200 dark:bg-slate-800">${log.status}</span></td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // Filtrar facturas
+    function filterInvoices() {
+      const search = document.getElementById('tableSearch').value.toLowerCase();
+      const type = document.getElementById('typeFilter').value;
+
+      const filtered = invoices.filter(inv => {
+        const matchesSearch = inv.entity.toLowerCase().includes(search) || inv.concept.toLowerCase().includes(search) || inv.number.toLowerCase().includes(search);
+        const matchesType = type === 'ALL' || inv.type === type;
+        return matchesSearch && matchesType;
+      });
+
+      renderInvoicesTable(filtered);
+    }
+
+    // Cambiar de Rol (Simulación interactiva)
+    function loginAs(role) {
+      currentRole = role;
+      
+      const btnEmp = document.getElementById('btnRoleEmp');
+      const btnCom = document.getElementById('btnRoleCom');
+      const btnAdm = document.getElementById('btnRoleAdm');
+      const roleBadge = document.getElementById('roleBadge');
+      const uploadSec = document.getElementById('companyUploadSection');
+      const empNotice = document.getElementById('employeeNotice');
+      const userAndCompanyView = document.getElementById('viewUserAndCompany');
+      const adminView = document.getElementById('viewAdminSection');
+
+      [btnEmp, btnCom, btnAdm].forEach(b => {
+        b.className = 'px-3 py-1.5 rounded-lg transition-colors';
+      });
+
+      if (role === 'employee') {
+        btnEmp.className = 'px-3 py-1.5 rounded-lg bg-amber-600 text-white shadow-sm';
+        roleBadge.className = 'text-xs px-2.5 py-0.5 rounded-full font-bold bg-amber-100 text-amber-800 dark:bg-amber-900/60 dark:text-amber-200';
+        roleBadge.innerText = 'Vista Empleado (Consulta)';
+        uploadSec.classList.add('hidden');
+        empNotice.classList.remove('hidden');
+        userAndCompanyView.classList.remove('hidden');
+        adminView.classList.add('hidden');
+      } else if (role === 'company') {
+        btnCom.className = 'px-3 py-1.5 rounded-lg bg-blue-600 text-white shadow-sm';
+        roleBadge.className = 'text-xs px-2.5 py-0.5 rounded-full font-bold bg-blue-100 text-blue-700 dark:bg-blue-900/60 dark:text-blue-300';
+        roleBadge.innerText = 'Vista Empresa (Gestor y Edición)';
+        uploadSec.classList.remove('hidden');
+        empNotice.classList.add('hidden');
+        userAndCompanyView.classList.remove('hidden');
+        adminView.classList.add('hidden');
+      } else if (role === 'admin') {
+        btnAdm.className = 'px-3 py-1.5 rounded-lg bg-purple-600 text-white shadow-sm';
+        roleBadge.className = 'text-xs px-2.5 py-0.5 rounded-full font-bold bg-purple-100 text-purple-800 dark:bg-purple-900/60 dark:text-purple-200';
+        roleBadge.innerText = 'Vista Administrador (Control Total)';
+        userAndCompanyView.classList.add('hidden');
+        adminView.classList.remove('hidden');
+        renderAuditLogs();
+      }
+
+      calculateDashboard();
+      renderInvoicesTable();
+
+      // Scroll suave hasta el espacio de trabajo
+      document.getElementById('app-workspace').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // Modales
+    function openLoginModal() { document.getElementById('loginModal').classList.remove('hidden'); }
+    function closeLoginModal() { document.getElementById('loginModal').classList.add('hidden'); }
+
+    function handleFormLogin(e) {
+      e.preventDefault();
+      closeLoginModal();
+      loginAs('company');
+    }
+
+    // Modal de Edición de Factura
+    let currentEditIdx = -1;
+    function openEditInvoiceModal(idx) {
+      currentEditIdx = idx;
+      const inv = invoices[idx];
+      document.getElementById('editIndex').value = idx;
+      document.getElementById('editNumber').value = inv.number;
+      document.getElementById('editDate').value = inv.date;
+      document.getElementById('editEntity').value = inv.entity;
+      document.getElementById('editConcept').value = inv.concept;
+      document.getElementById('editBase').value = inv.base;
+      document.getElementById('editVatRate').value = inv.vatRate;
+      document.getElementById('editIrpfRate').value = inv.irpfRate;
+      recalcModalTotals();
+      document.getElementById('editInvoiceModal').classList.remove('hidden');
+    }
+
+    function closeEditInvoiceModal() {
+      document.getElementById('editInvoiceModal').classList.add('hidden');
+    }
+
+    function recalcModalTotals() {
+      const base = parseFloat(document.getElementById('editBase').value) || 0;
+      const vatRate = parseFloat(document.getElementById('editVatRate').value) || 0;
+      const irpfRate = parseFloat(document.getElementById('editIrpfRate').value) || 0;
+
+      const vat = base * (vatRate / 100);
+      const irpf = base * (irpfRate / 100);
+      const total = base + vat - irpf;
+
+      document.getElementById('previewVat').innerText = formatCurrency(vat);
+      document.getElementById('previewIrpf').innerText = irpf > 0 ? '-' + formatCurrency(irpf) : '0.00 €';
+      document.getElementById('previewTotal').innerText = formatCurrency(total);
+    }
+
+    function saveInvoiceEdit(e) {
+      e.preventDefault();
+      if (currentEditIdx >= 0) {
+        invoices[currentEditIdx].number = document.getElementById('editNumber').value;
+        invoices[currentEditIdx].date = document.getElementById('editDate').value;
+        invoices[currentEditIdx].entity = document.getElementById('editEntity').value;
+        invoices[currentEditIdx].concept = document.getElementById('editConcept').value;
+        invoices[currentEditIdx].base = parseFloat(document.getElementById('editBase').value);
+        invoices[currentEditIdx].vatRate = parseFloat(document.getElementById('editVatRate').value);
+        invoices[currentEditIdx].irpfRate = parseFloat(document.getElementById('editIrpfRate').value);
+
+        // Añadir registro de auditoría
+        auditLogs.unshift({
+          time: new Date().toISOString().replace('T', ' ').substring(0, 19),
+          event: 'INVOICE_MODIFIED',
+          user: 'empresa@estudiovega.es',
+          ip: '88.12.45.190',
+          ua: 'Web Workspace UI',
+          status: `FACT_${invoices[currentEditIdx].number}`
+        });
+
+        calculateDashboard();
+        renderInvoicesTable();
+        closeEditInvoiceModal();
+      }
+    }
+
+    // Simulación de subida Drag & Drop con IA
+    function simulateUpload(event) {
+      const files = event.target.files;
+      if (!files.length) return;
+
+      const bar = document.getElementById('uploadProgressBar');
+      const text = document.getElementById('uploadStatusText');
+      const fill = document.getElementById('uploadProgressFill');
+      const percent = document.getElementById('uploadPercentText');
+      bar.classList.remove('hidden');
+
+      let p = 0;
+      const interval = setInterval(() => {
+        p += 20;
+        fill.style.width = p + '%';
+        percent.innerText = p + '%';
+
+        if (p === 40) text.innerText = 'Validando magic bytes binarios...';
+        if (p === 60) text.innerText = 'Extrayendo con modelo IA local (Ollama)...';
+        if (p === 80) text.innerText = 'Cuadrando Modelo 303 y borrando archivo original...';
+
+        if (p >= 100) {
+          clearInterval(interval);
+          text.innerText = '¡Factura procesada con éxito y original destruido!';
+          setTimeout(() => {
+            bar.classList.add('hidden');
+            // Añadir factura demostrativa procesada
+            invoices.unshift({
+              id: Date.now(),
+              type: 'INGRESO',
+              number: 'F-2026-NUEVA',
+              date: new Date().toISOString().split('T')[0],
+              entity: 'Cliente Demo Recién Extraído SL',
+              concept: 'Servicios de consultoría tecnológica e IA',
+              base: 1500.00,
+              vatRate: 21,
+              irpfRate: 15
+            });
+            calculateDashboard();
+            renderInvoicesTable();
+          }, 1500);
+        }
+      }, 300);
+    }
+
+    // Simulador de Bot de Telegram
+    function sendBotCommand(cmd) {
+      const chat = document.getElementById('telegramChatBox');
+      
+      // Mensaje de usuario
+      const userMsg = document.createElement('div');
+      userMsg.className = 'bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 p-2.5 rounded-2xl max-w-[80%] ml-auto text-right font-medium';
+      userMsg.innerText = cmd;
+      chat.appendChild(userMsg);
+
+      // Respuesta simulada del bot
+      setTimeout(() => {
+        const botMsg = document.createElement('div');
+        botMsg.className = 'bg-blue-50 dark:bg-blue-950/50 text-blue-900 dark:text-blue-200 p-3 rounded-2xl max-w-[85%] rounded-tl-none';
+
+        if (cmd === '/resumen') {
+          botMsg.innerHTML = `📊 <strong>RESUMEN FINANCIERO ACTUAL:</strong><br>• Facturación Neta: <strong>${document.getElementById('kpiIncome').innerText}</strong><br>• Gastos: <strong>${document.getElementById('kpiExpense').innerText}</strong><br>• Beneficio: <strong>${document.getElementById('kpiProfit').innerText}</strong><br>• Margen: <strong>97.8%</strong>`;
+        } else if (cmd === '/iva') {
+          botMsg.innerHTML = `📑 <strong>PREVISIÓN MODELO 303 (IVA):</strong><br>• IVA Repercutido: 5.617,50 €<br>• IVA Soportado: 123,61 €<br>• <strong>Resultado a Ingresar: 5.493,89 €</strong>`;
+        } else if (cmd === '/facturas') {
+          botMsg.innerHTML = `🧾 <strong>ÚLTIMAS FACTURAS:</strong><br>🟢 F-2026-005 · Boutique Mariposa (5.830 €)<br>🟢 F-2026-004 · Tech Startup Innova (4.028 €)<br>🔴 ADBE-26-03 · Adobe Systems (72,59 €)`;
+        } else if (cmd === '/gastos') {
+          botMsg.innerHTML = `🔴 <strong>AUDITORÍA DE GASTOS:</strong><br>Mayor gasto: Impact Hub Madrid (250 € base). Suministros (Iberdrola: 145,30 €). Tus gastos representan solo el 2,2% de la facturación.`;
+        } else if (cmd === '/consejo') {
+          botMsg.innerHTML = `💡 <strong>CONSEJO FISCAL IA:</strong><br>Tienes 4.012,50 € de retenciones de IRPF soportadas del 15%. Asegúrate de deducirlas en el pago fraccionado o Modelo 200 de Sociedades.`;
+        } else if (cmd === '/contacto') {
+          botMsg.innerHTML = `📞 <strong>CONTACTO CARLOS PLATA MORÁN:</strong><br>• Móvil/WhatsApp: +34 633 97 15 27<br>• Telegram: @carlos_plata<br>• Email: carplamor25@iesfidiana.es`;
+        }
+        
+        chat.appendChild(botMsg);
+        chat.scrollTop = chat.scrollHeight;
+      }, 400);
+    }
+
+    // Toggle Modo Oscuro
+    document.getElementById('themeToggle').addEventListener('click', () => {
+      document.documentElement.classList.toggle('dark');
+      localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
+    });
+
+    if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      document.documentElement.classList.add('dark');
+    }
+
+    // Inicialización
+    window.addEventListener('DOMContentLoaded', () => {
+      calculateDashboard();
+      renderInvoicesTable();
+      lucide.createIcons();
+    });
+  </script>
+</body>
+</html>

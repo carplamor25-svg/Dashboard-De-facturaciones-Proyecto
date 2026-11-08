@@ -1,0 +1,48 @@
+# ==============================================================================
+# .gitignore - Dashboard de Facturaciones y Nóminas
+# Repositorio: https://github.com/carplamor25-svg/Dashboard-De-facturaciones-Proyecto.git
+# Autor: Carlos Plata Morán
+# ==============================================================================
+
+# Entorno y variables secretas (NUNCA SUBIR A GIT)
+.env
+.env.*
+!.env.example
+token.env
+*.env
+
+# Certificados y claves criptográficas privadas
+*.pem
+*.key
+*.cert
+*.crt
+id_rsa
+id_rsa.pub
+*.pfx
+*.p12
+
+# Dependencias de paquetes y builds
+node_modules/
+dist/
+build/
+.next/
+out/
+package-lock.json
+
+# Almacenamiento temporal de facturas (efímero, destrucción garantizada)
+uploads/
+temp_uploads/
+tmp/
+*.tmp
+*.log
+
+# Datos de base de datos local
+*.sqlite
+*.sqlite3
+pgdata/
+
+# Archivos de sistema y editores
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
