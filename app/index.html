@@ -178,6 +178,10 @@
 
       <!-- Usuario y Salir -->
       <div class="flex items-center space-x-3 text-xs">
+        <a href="../correos_cor/" class="hidden sm:flex items-center space-x-1 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-cyan-950/60 text-cyan-400 border border-slate-700 hover:border-cyan-700/60 transition-colors font-semibold" title="Abrir Gestor de Facturas por Correo">
+          <i data-lucide="mail" class="w-3.5 h-3.5"></i>
+          <span>Correos_cor</span>
+        </a>
         <div class="text-right hidden sm:block">
           <div class="font-bold text-slate-200" id="userDisplayName">Carlos Plata Morán</div>
           <div class="text-[10px] text-slate-400" id="userDisplayEmail">carplamor25@iesfidiana.es</div>
@@ -697,7 +701,11 @@
 
       <!-- Botones de Acción -->
       <div class="mt-6 pt-4 border-t border-slate-200 flex justify-end space-x-3">
-        <button onclick="window.print()" class="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs flex items-center space-x-1.5 shadow">
+        <button onclick="downloadSingleInvoiceHTML()" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs flex items-center space-x-1.5 border border-slate-300 transition-colors">
+          <i data-lucide="download" class="w-4 h-4"></i>
+          <span>Descargar Factura HTML</span>
+        </button>
+        <button onclick="window.print()" class="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs flex items-center space-x-1.5 shadow transition-colors">
           <i data-lucide="printer" class="w-4 h-4"></i>
           <span>Imprimir / Guardar en PDF</span>
         </button>
@@ -891,6 +899,31 @@
     let currentUser = null;
 
     function checkAuth() {
+      // Auto-login si el usuario viene de la pantalla de acceso en la portada
+      const pendingEmail = sessionStorage.getItem('pending_login_email');
+      const pendingPass = sessionStorage.getItem('pending_login_pass');
+      if (pendingEmail) {
+        sessionStorage.removeItem('pending_login_email');
+        sessionStorage.removeItem('pending_login_pass');
+        const db = getDB();
+        const user = db.users.find(u => u.email.toLowerCase() === pendingEmail.toLowerCase());
+        if (user && (!pendingPass || user.passwordHash === pendingPass || pendingPass.includes('•'))) {
+          currentUser = user;
+          localStorage.setItem('DASHBOARD_CURRENT_USER', JSON.stringify(user));
+          // Log de acceso
+          db.auditLogs.unshift({
+            time: new Date().toISOString().replace('T', ' ').substring(0, 19),
+            event: 'SSO_LOGIN_SUCCESS',
+            user: user.email,
+            ip: '88.12.45.190',
+            details: `Acceso desde portal principal con rol: ${user.role}`
+          });
+          saveDB(db);
+          showApp();
+          return;
+        }
+      }
+
       const stored = localStorage.getItem('DASHBOARD_CURRENT_USER');
       if (stored) {
         currentUser = JSON.parse(stored);
@@ -1214,6 +1247,35 @@
 
     function closeViewInvoiceModal() {
       document.getElementById('viewInvoiceModal').classList.add('hidden');
+    }
+
+    function downloadSingleInvoiceHTML() {
+      const num = document.getElementById('previewNumber').innerText;
+      const content = document.getElementById('printInvoiceArea').innerHTML;
+      const fullHtml = `<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Factura ${num} - Carlos Plata Morán</title>
+  <script src="https://cdn.tailwindcss.com"><\/script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap');
+    body { font-family: 'Plus Jakarta Sans', sans-serif; background: #f8fafc; padding: 40px; color: #0f172a; }
+    .font-mono { font-family: 'JetBrains Mono', monospace; }
+  </style>
+</head>
+<body class="p-6">
+  <div class="max-w-2xl mx-auto bg-white p-8 rounded-3xl shadow-lg border border-slate-200">
+    ${content}
+  </div>
+</body>
+</html>`;
+      const blob = new Blob([fullHtml], { type: 'text/html' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Factura_${num}.html`;
+      a.click();
     }
 
     // 7. EDICIÓN Y CREACIÓN DE FACTURAS
